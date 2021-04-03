@@ -5,8 +5,8 @@ import { useSole } from '../hooks/useSole'
 
 export default defineComponent({
   name: 'Tsx',
-  emits: ['hello'],
-  setup(_, { emit }) {
+
+  setup() {
     const root = ref<HTMLElement>()
     const drownFresh = ref<HTMLElement>()
     const a = reactive({
@@ -38,47 +38,45 @@ export default defineComponent({
 
     onMounted(() => {
       let offsetY: number
-      let MoveOffset
-      // let timer
+      let MoveOffset: number
+      drownFresh.value!.style.marginTop = '-100px'
+      let timer: NodeJS.Timeout
 
       if (root.value) {
         root.value.addEventListener('touchstart', function (e) {
           offsetY = e.touches[0].pageY
-          // console.log(offsetY)
         })
 
         root.value.addEventListener('touchmove', function (e) {
           if (root.value?.scrollTop) {
             return
           }
-          // console.log(root.value?.scrollTop)
 
           MoveOffset = e.touches[0].pageY - offsetY
           if (MoveOffset < 0 || MoveOffset > 180) return
+          drownFresh.value!.style.transition = ''
+          drownFresh.value!.style.marginTop = `-${100 - MoveOffset}px`
+        })
 
-          console.log(MoveOffset)
+        root.value.addEventListener('touchend', () => {
+          if (MoveOffset > 60) {
+            clearTimeout(timer)
+            timer = setTimeout(() => {
+              drownFresh.value!.style.transition = 'all .2s'
+              console.log('刷新了')
+              drownFresh.value!.style.marginTop = `-${100}px`
 
-          drownFresh.value!.style.marginTop = `-${MoveOffset}px`
-
-          // if (MoveOffset < 0 || MoveOffset > 180) return
-          // console.log(e.touches[0].pageY - offsetY)
-          // if (root.value!.scrollTop !== 0) return //	不到顶部不做操作
-          // MoveOffset = e.touches[0].pageY - offsetY // 下拉的距离
-          // if (MoveOffset < 0 || MoveOffset > 180) return // 避免初始化赋值  || 下拉距离超过180 停止拉伸
-          // drownFresh.style.marginTop = `-${drownFresh_hold.offsetHeight - MoveOffset}px`
-          // // if(drownFresh_hold.offsetHeight-MoveOffset<0){
-          // // 	this.style.transform = `translateY(${MoveOffset}px)` //	动态拉伸距离
-          // // 	this.style.transition = '' // 动画清0
-          // // }
-          // //  下拉距离超过60 箭头转向
-          // MoveOffset > 60
-          //   ? iconEl.classList.add('active')
-          //   : iconEl.classList.remove('active')
+              offsetY = 0
+              MoveOffset = 0
+            }, 800)
+          } else {
+            //
+          }
         })
       }
     })
     // onClick={click}
-    emit('hello', 521)
+
     return () => {
       return (
         <Fragment>
@@ -88,8 +86,17 @@ export default defineComponent({
           >
             <div
               ref={drownFresh}
-              style={{ background: 'red', width: '100%', height: '100px' }}
-            ></div>
+              style={{
+                background: 'red',
+                width: '100%',
+                height: '100px',
+                // transition: 'all 0.2s',
+                lineHeight: '100px',
+                textAlign: 'center'
+              }}
+            >
+              loading
+            </div>
             {a.list.map((i) => {
               return (
                 <div
