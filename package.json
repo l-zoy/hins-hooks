@@ -1,0 +1,26 @@
+{
+  "name": "hins-hooks",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "zmi dev"
+  },
+  "devDependencies": {
+    "@types/lodash.debounce": "^4.0.6",
+    "@types/lodash.merge": "^4.6.6",
+    "@types/lodash.throttle": "^4.1.6",
+    "@vue/compiler-sfc": "^3.0.11",
+    "eslint": "^7.23.0",
+    "eslint-config-zmi": "^1.2.4",
+    "typescript": "^4.2.3",
+    "vue": "^3.0.11",
+    "zmi": "^1.0.8",
+    "zmi-nerd": "^1.2.2-3"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "lodash.merge": "^4.6.2",
+    "lodash.throttle": "^4.1.1"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "root": true,
+  "extends": ["zmi/vue"],
+  "rules": {
+    "no-new-func": "off"
+  }
+}
