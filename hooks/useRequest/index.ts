@@ -65,7 +65,8 @@ function useRequestBase(requests: IUseRequestOptions[], useOptions: any) {
     cacheKey,
     freshTime = 0,
     cacheTime = 5 * 60 * 1000,
-    loadingDelay
+    loadingDelay,
+    concurrent = true
   } = useOptions
   const data = ref<any[]>([])
   const loading = ref(false)
@@ -79,18 +80,45 @@ function useRequestBase(requests: IUseRequestOptions[], useOptions: any) {
   })
 
   let chainRequestCantext = ''
-  const onDone = 'resolve(memo);'
+  const onDone = '\nresolve(memo);'
   let current = onDone
 
-  for (let index = request.length - 1; index >= 0; index--) {
-    const unroll = current !== onDone
-    if (unroll) {
-      chainRequestCantext += `function next${index}(){ ${current} } \n`
-      current = `next${index}();\n`
+  if (concurrent) {
+    for (let index = request.length - 1; index >= 0; index--) {
+      if (index === request.length - 1) {
+        chainRequestCantext += `
+          const memoValue = []
+          const memo = new Proxy(memoValue, {
+          set(target, key,value,all) {
+            const is = Reflect.set(target, key, value);
+            if (target.length === request.length){
+              resolve(memoValue);
+            }
+            return is
+          }
+        });
+        `
+      }
+      chainRequestCantext += `
+      const promise${index} = request[${index}]()
+      promise${index}.then((rest${index})=>{
+        memo[${index}] = rest${index}
+      },(err)=>{
+        memo[${index}] = {data:{...err}, error:true}
+      })`
     }
+  } else {
+    for (let index = request.length - 1; index >= 0; index--) {
+      const unroll = current !== onDone
+      chainRequestCantext += `const memo = []`
 
-    const unrollCantext = unroll ? `next${index}()` : onDone
-    const content = `
+      if (unroll) {
+        chainRequestCantext += `function next${index}(){ ${current} } \n`
+        current = `next${index}();\n`
+      }
+
+      const unrollCantext = unroll ? `next${index}()` : onDone
+      const content = `
       const promise${index} = request[${index}]()
       promise${index}.then((rest${index})=>{
         memo.push(rest${index})
@@ -99,14 +127,13 @@ function useRequestBase(requests: IUseRequestOptions[], useOptions: any) {
         memo.push({data:{...err}, error:true})
         ${unrollCantext};
       })`
-    current = content
+      current = content
+    }
+    chainRequestCantext += current
   }
-
-  chainRequestCantext += current
 
   const code = `
   return new Promise((resolve, reject) => {
-    const memo = []
     ${chainRequestCantext}
   })`
 

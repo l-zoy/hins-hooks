@@ -1,90 +1,48 @@
-import { defineComponent, reactive, watch, onMounted, Fragment, ref } from 'vue'
-// import { useRequest } from '../hooks/useRequest'
+import { defineComponent, Fragment } from 'vue'
+import { useRequest } from '../hooks/useRequest'
 // import { useVisibility } from '../hooks/useVisibility'
-import { useSole } from '../hooks/useSole'
-
+// reactive, watch, onMounted,
 export default defineComponent({
   name: 'Tsx',
 
   setup() {
-    const root = ref<HTMLElement>()
-    const drownFresh = ref<HTMLElement>()
-    const a = reactive({
-      list: Array(100)
-        .fill(0)
-        .map((i, j) => j),
-      foo: 2
-    })
+    // const root = ref<HTMLElement>()
+    // const drownFresh = ref<HTMLElement>()
+    // const a = reactive({
+    //   list: Array(100)
+    //     .fill(0)
+    //     .map((i, j) => j),
+    //   foo: 2
+    // })
 
-    // const { data, click, loading, cancel } = useRequest(
-    //   [
-    //     {
-    //       url: 'https://mock.mengxuegu.com/mock/60646da4987c3024c3ba1a39/testget',
-    //       params: { kda: 1 },
-    //       type: 'get'
-    //     }
-    //   ],
-    //   { pollingInterval: 1000, manual: true }
-    // )
+    const { data, loading, cancel } = useRequest([
+      {
+        url: 'https://mock.mengxuegu.com/mock/60646da4987c3024c3ba1a39/testget',
+        params: { kda: 1 },
+        type: 'get'
+      },
+      {
+        url: 'https://mock.mengxuegu.com/mock/60646da4987c3024c3ba1a39/testget',
+        params: { kda: 1 },
+        type: 'get'
+      }
+    ])
 
     // const visibility = useVisibility(() => {
     //   console.log(123)
     // })
-    const sole = useSole('kda')
 
-    watch(sole, () => {
-      console.log(sole.value, '111')
-    })
-
-    onMounted(() => {
-      let offsetY: number
-      let MoveOffset: number
-      drownFresh.value!.style.marginTop = '-100px'
-      let timer: NodeJS.Timeout
-
-      if (root.value) {
-        root.value.addEventListener('touchstart', function (e) {
-          offsetY = e.touches[0].pageY
-        })
-
-        root.value.addEventListener('touchmove', function (e) {
-          if (root.value?.scrollTop) {
-            return
-          }
-
-          MoveOffset = e.touches[0].pageY - offsetY
-          if (MoveOffset < 0 || MoveOffset > 180) return
-          drownFresh.value!.style.transition = ''
-          drownFresh.value!.style.marginTop = `-${100 - MoveOffset}px`
-        })
-
-        root.value.addEventListener('touchend', () => {
-          if (MoveOffset > 60) {
-            clearTimeout(timer)
-            timer = setTimeout(() => {
-              drownFresh.value!.style.transition = 'all .2s'
-              console.log('刷新了')
-              drownFresh.value!.style.marginTop = `-${100}px`
-
-              offsetY = 0
-              MoveOffset = 0
-            }, 800)
-          } else {
-            //
-          }
-        })
-      }
-    })
     // onClick={click}
 
     return () => {
+      data.value.forEach((item) => {
+        console.log(item)
+      })
+
       return (
         <Fragment>
-          <div
-            ref={root}
-            style={{ height: '100vh', background: 'red', overflow: 'auto' }}
-          >
-            <div
+          {/* <div ref={root} style={{ height: '100vh', overflow: 'auto' }}> */}
+          {/* <div
               ref={drownFresh}
               style={{
                 background: 'red',
@@ -111,18 +69,17 @@ export default defineComponent({
                   {i}
                 </div>
               )
-            })}
-            {/* </div>
+            })} */}
+          {/* </div> */}
 
           <div class="hello" onClick={cancel}>
-            {a.data}
             {`${loading.value}`}
           </div>
           {data.value.map((item) => {
-            return <div key={item}>{JSON.stringify(item)}</div>
+            return <div key={item}>{JSON.stringify(item.data)}1</div>
           })}
 
-          <div
+          {/* <div
             id="kda"
             style={{
               height: '200px',
@@ -131,8 +88,8 @@ export default defineComponent({
               overflow: 'auto'
             }}
           >
-            <div style={{ height: '300px', width: '100%', background: 'blue' }}></div> */}
-          </div>
+            <div style={{ height: '300px', width: '100%', background: 'blue' }}></div>
+          </div> */}
         </Fragment>
       )
     }
